@@ -49,11 +49,11 @@
             class=" bg-none text-gray-800 w-full h-full border border-gray-300 p-1 px-4 rounded-lg placeholder:text-gray-300 outline-none"
             placeholder="Search"
             on:input={(e) => {
-                if (!e.target) return;
+                if (!(e.target instanceof HTMLInputElement)) return;
                 $store.global.searchValue = e.target.value;
             }}
             on:change={(e) => {
-                if (!e.target) return;
+                if (!(e.target instanceof HTMLInputElement)) return;
                 $store.global.searchValue = e.target.value;
             }}
         />
