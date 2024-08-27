@@ -157,11 +157,12 @@
     class="opacity-0 modal transition-all pointer-events-none fixed inset-0 z-10"
 >
     <div
-        class="bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col w-[700px] h-[400px] rounded-lg"
+        class="bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 grid grid-rows-6 w-[700px] h-[500px] rounded-lg"
     >
-        <div class="flex items-center p-4 px-8 justify-between">
+        <div class="flex row-span-1 items-center p-4 px-8 justify-between">
             <span class="text-gray-500 text-xl">Add Organization</span>
             <Button
+                className="h-fit"
                 on:click={() => {
                     showCompanyModal = false;
                 }}
@@ -174,10 +175,10 @@
                 handleFormChange(e);
             }}
             on:submit={handleAddOrganization}
-            class="flex flex-col justify-between row-span-2 gap-4 p-4 px-8 overflow-y-auto"
+            class="flex flex-col row-span-5 justify-between gap-4 p-4 px-8 overflow-y-auto"
         >
             <div
-                class="max-h-[15rem] grid grid-cols-2 gap-4 w-full overflow-y-auto py-2 pe-2"
+                class=" grid grid-cols-2 gap-4 w-full overflow-y-auto py-2 pe-2"
             >
                 {#each formInputs as { name, id, required, type, placeholder, value }}
                     {#if type === "select" && value}
@@ -279,7 +280,7 @@
                     {/if}
                 {/each}
             </div>
-            <div class="row-start-8 col-span-2 mt-auto">
+            <div class="row-start-8 col-span-2">
                 <Button
                     on:click={() => {
                         // handleAddOrganization();

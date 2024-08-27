@@ -2,6 +2,7 @@
     import { createEventDispatcher } from "svelte";
 
     export let name = "";
+    export let className = "";
     export let type: "button" | "submit" = "button";
     export let size = "fit" as "fit" | "wide";
     const dispatch = createEventDispatcher();
@@ -13,7 +14,7 @@
 <button
     class:w-full={size === "wide"}
     class:w-fit={size === "fit"}
-    class="p-2 px-4 rounded-lg hover:border-gray-500 hover:text-gray-700 transition-all text-sm border border-gray-300 text-gray-500 h-full"
+    class="p-2 px-4 rounded-lg hover:border-gray-500 hover:text-gray-700 transition-all text-sm border border-gray-300 text-gray-500 h-full {className}"
     on:click={handleClick}
     {type}>{name}</button
 >
