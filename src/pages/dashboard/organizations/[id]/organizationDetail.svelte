@@ -41,7 +41,9 @@
 
     $: formData = {
         id: organization.id,
+        city: organization.city,
         capitalId: organization.capitalId,
+        industry: organization.industry,
     } as DetailType;
     $: filtered_cities = [] as any[];
 
@@ -166,7 +168,10 @@
                             id=""
                         >
                             {#each filtered_cities as city}
-                                <option value={city.name}>{city.name}</option>
+                                <option
+                                    selected={city.name === formData.city}
+                                    value={city.name}>{city.name}</option
+                                >
                             {/each}
                         </select>
                         <input
@@ -233,7 +238,10 @@
                             id=""
                         >
                             {#each industries as industry}
-                                <option value={industry.name}
+                                <option
+                                    selected={industry.name ===
+                                        formData.industry}
+                                    value={industry.name}
                                     >{industry.name}</option
                                 >
                             {/each}
