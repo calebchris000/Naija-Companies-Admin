@@ -1,6 +1,5 @@
 <script lang="ts">
     import Check from "@src/assets/check.svelte";
-    import Navbar from "@src/pages/dashboard/components/navbar.svelte";
     import Layout from "./layout.svelte";
     import Cancel from "@src/assets/cancel.svelte";
     import { organizations } from "@src/lib/organizations";
@@ -14,6 +13,7 @@
     import { notification } from "@src/utils";
     import { cities } from "@src/lib/cities";
     import AddCompanyModal from "./components/addCompanyModal.svelte";
+    import Navbar from "@src/components/navbar/navbar.svelte";
 
     $: companies = [] as any[];
     $: companies_filter = [] as any[];
