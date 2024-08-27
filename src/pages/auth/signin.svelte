@@ -20,7 +20,7 @@
             localStorage.setItem("user", JSON.stringify(others));
             loginStatus = "success";
             setTimeout(() => {
-                navigate("/dashboard");
+                navigate("/dashboard/organizations");
             }, 2000);
         }
     }
