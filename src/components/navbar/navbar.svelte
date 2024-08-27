@@ -6,6 +6,9 @@
 
     const path = window.location.pathname.split("/").filter((path) => path);
     console.log(path);
+    function handleBack() {
+        window.history.back();
+    }
     $store.global.currentPath = path;
 </script>
 
@@ -13,7 +16,7 @@
     class="grid grid-cols-12 py-5 items-center px-8 sticky top-0 w-full h-20 gap-10"
 >
     <div class="col-span-4 flex items-center gap-4">
-        <button type="button">
+        <button on:click={handleBack} type="button">
             <Arrow1 className="w-4 rotate-180 text-gray-500" />
         </button>
 
