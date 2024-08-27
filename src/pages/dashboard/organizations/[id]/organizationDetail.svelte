@@ -13,6 +13,7 @@
     import { organizations } from "@src/lib/organizations";
     import { GetCapitals } from "@src/api/capital";
     import { industries } from "@src/lib/industries";
+    import { cities } from "@src/lib/cities";
 
     type DetailType = {
         id: string;
@@ -34,7 +35,16 @@
     const id = path[path.length - 1];
     $: organization = {} as DetailType;
     $: capitals = [] as any[];
-    $: formData = organization as DetailType;
+    $: defaultCapital = capitals.find(
+        (c) => c.id === organization.capitalId,
+    )?.name;
+
+    $: formData = {
+        id: organization.id,
+        capitalId: organization.capitalId,
+    } as DetailType;
+    $: filtered_cities = [] as any[];
+
     $: editMode = false;
     $: updateStatus = "inactive" as
         | "inactive"
@@ -42,12 +52,17 @@
         | "success"
         | "error";
 
+    function handleCityFilter() {
+        filtered_cities = cities.filter((city) => {
+            const capital = capitals.find((c) => c.id === formData.capitalId);
+            return city.capital === capital?.name;
+        });
+    }
     function getDetail() {
         GetOrganization(`organizationId=${id}`).then((d) => {
             const { status, data } = d;
 
             if (status === 200) {
-                console.log(data.data);
                 organization = data.data;
                 const curr = $store.global.currentPath;
 
@@ -62,11 +77,12 @@
 
     async function handleUpdateData(object: any) {
         updateStatus = "pending";
-        console.log(formData);
+        if (filtered_cities.length === 1 || !formData.city) {
+            formData.city = (filtered_cities[0] as any).name;
+        }
         const response = await UpdateOrganizations(object ?? formData);
         const { status, data } = response;
         if (status !== 200) {
-            console.log(data);
             updateStatus = "error";
         } else {
             updateStatus = "success";
@@ -139,11 +155,26 @@
                 >
                     <div class="flex flex-col gap-1">
                         <span>City</span>
+                        <select
+                            on:input={(e) => {
+                                if (!e.target) return;
+                                formData.city = e.target.value;
+                            }}
+                            class:hidden={!editMode}
+                            class="bg-transparent outline-none border border-gray-300 p-2 rounded-lg"
+                            name=""
+                            id=""
+                        >
+                            {#each filtered_cities as city}
+                                <option value={city.name}>{city.name}</option>
+                            {/each}
+                        </select>
                         <input
                             on:input={(e) => {
                                 if (!e.target) return;
                                 formData.city = e.target.value;
                             }}
+                            class:hidden={editMode}
                             class="text-gray-800 bg-transparent"
                             value={organization.city}
                             type="text"
@@ -221,6 +252,7 @@
                             on:input={(e) => {
                                 if (!e.target) return;
                                 formData.capitalId = e.target.value;
+                                handleCityFilter();
                             }}
                             class:hidden={!editMode}
                             class="bg-transparent outline-none border border-gray-300 p-2 rounded-lg"
@@ -228,9 +260,15 @@
                             id=""
                         >
                             {#each capitals as capital}
-                                <option value={capital.id}
-                                    >{capital.name}</option
-                                >
+                                {#if defaultCapital === capital?.name}
+                                    <option selected value={capital.id}
+                                        >{capital.name}</option
+                                    >
+                                {:else}
+                                    <option value={capital.id}
+                                        >{capital.name}</option
+                                    >
+                                {/if}
                             {/each}
                         </select>
                         <input
@@ -247,7 +285,10 @@
                         <span>Description</span>
 
                         <textarea
-                            class="text-gray-800 bg-transparent"
+                            class:border-gray-300={editMode}
+                            class:p-2={editMode}
+                            class:border-transparent={!editMode}
+                            class="text-gray-800 border resize-none bg-transparent rounded-lg outline-none"
                             name="description"
                             value={organization.description}
                             id=""
@@ -292,6 +333,7 @@
                         {:else}
                             <Button
                                 on:click={() => {
+                                    handleCityFilter();
                                     editMode = true;
                                 }}
                                 Icon={Pencil}
