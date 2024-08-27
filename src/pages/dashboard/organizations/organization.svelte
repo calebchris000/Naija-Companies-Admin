@@ -1,6 +1,6 @@
 <script lang="ts">
     import Check from "@src/assets/check.svelte";
-    import Navbar from "./components/navbar.svelte";
+    import Navbar from "@src/pages/dashboard/components/navbar.svelte";
     import Layout from "./layout.svelte";
     import Cancel from "@src/assets/cancel.svelte";
     import { organizations } from "@src/lib/organizations";
@@ -13,7 +13,7 @@
     import { industries } from "@src/lib/industries";
     import { notification } from "@src/utils";
     import { cities } from "@src/lib/cities";
-    import AddCompanyModal from "./organizations/components/addCompanyModal.svelte";
+    import AddCompanyModal from "./components/addCompanyModal.svelte";
 
     $: companies = [] as any[];
     $: companies_filter = [] as any[];
@@ -32,8 +32,6 @@
         description: string;
         city: string;
     };
-
-    $: showCompanyModal = false;
 
     $: {
         if ($store.global.searchValue) {
@@ -80,7 +78,6 @@
 
         const capitalId = capitals.find((c) => c.name === capital)?.id;
         console.log(formObject);
-        return;
         const response = await AddOrganizations([
             {
                 name,
@@ -106,7 +103,7 @@
             });
         } else {
             notification.success({ text: "Successfully added organization" });
-            showCompanyModal = false;
+            $store.organization.addModalOpen = false;
         }
     }
 
@@ -114,6 +111,7 @@
         const target = e.target as HTMLInputElement | HTMLSelectElement;
         const { name, value } = target;
         console.log(name, value);
+        $store.organization.addFormData[name] = value;
         formdata[name] = value;
     }
 
@@ -149,7 +147,7 @@
             <Navbar>
                 <Button
                     on:click={() => {
-                        showCompanyModal = !showCompanyModal;
+                        $store.organization.addModalOpen = true;
                     }}
                     name="Add Company"
                 />
@@ -205,10 +203,8 @@
         </div>
     </Layout>
     <AddCompanyModal
-        {showCompanyModal}
         on:formChange={(e) => {
-            const { detail } = e;
-            handleFormChange(detail);
+            handleFormChange(e.detail);
         }}
         on:submit={(e) => {
             handleAddOrganization(e.detail);
