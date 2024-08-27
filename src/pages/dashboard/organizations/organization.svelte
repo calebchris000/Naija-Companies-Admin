@@ -14,6 +14,7 @@
     import { cities } from "@src/lib/cities";
     import AddCompanyModal from "./components/addCompanyModal.svelte";
     import Navbar from "@src/components/navbar/navbar.svelte";
+    import { navigate } from "svelte-routing";
 
     $: companies = [] as any[];
     $: companies_filter = [] as any[];
@@ -129,7 +130,7 @@
 <section class=" w-full h-full">
     <Layout className="bg-[#f7f7f7] px-4">
         <div
-            class="flex flex-col gap-8 w-full overflow-hidden border-2 border-gray-200 rounded-2xl h-[95vh] self-center bg-[#fffefd]"
+            class="flex flex-col gap-4 w-full overflow-hidden border-2 border-gray-200 rounded-2xl h-[95vh] self-center bg-[#fffefd]"
         >
             <Navbar>
                 <Button
@@ -139,7 +140,7 @@
                     name="Add Company"
                 />
             </Navbar>
-            <span class="text-xl text-gray-800 px-4 font-medium"
+            <span class="text-xl pt-4 text-gray-800 px-4 font-medium"
                 >All Organizations</span
             >
 
@@ -161,6 +162,9 @@
                     {#each companies_filter as org, index}
                         <button
                             type="button"
+                            on:click={() => {
+                                navigate(`/dashboard/organization/${org.id}`);
+                            }}
                             class="grid w-full text-start transition-all grid-cols-12 hover:bg-gray-100 text-gray-800 text-sm px-4 items-center py-2 border-b border-gray-100"
                         >
                             <span class="w-full">{index + 1}</span>
