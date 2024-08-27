@@ -20,6 +20,7 @@ type StoreType = {
   selected: { index: number; url: string };
   global: {
     searchValue: string;
+    currentPath: string[];
   };
   organization: {
     addModalOpen: boolean;
@@ -35,6 +36,7 @@ const defaultStore: StoreType = {
   },
   global: {
     searchValue: "",
+    currentPath: [],
   },
   organization: {
     addModalOpen: false,

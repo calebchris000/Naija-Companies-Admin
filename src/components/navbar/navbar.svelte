@@ -1,26 +1,46 @@
 <script lang="ts">
-    import Arrow from "@src/assets/arrow.svelte";
+    import Arrow0 from "./arrow.svelte";
+    import Arrow1 from "@src/assets/arrow.svelte";
     import Home from "@src/assets/home.svelte";
     import { store } from "@src/lib/store";
 
-    const path = window.location.pathname;
+    const path = window.location.pathname.split("/").filter((path) => path);
     console.log(path);
+    $store.global.currentPath = path;
 </script>
 
 <section
-    class="grid grid-cols-12 py-4 items-center px-4 sticky top-0 w-full h-14 gap-10"
+    class="grid grid-cols-12 py-5 items-center px-8 sticky top-0 w-full h-20 gap-10"
 >
-    <div class="col-span-3">
-        <button class:hidden={path === "/dashboard"} type="button">
-            <Arrow className="w-4 rotate-180 text-gray-800" />
+    <div class="col-span-4 flex items-center gap-4">
+        <button type="button">
+            <Arrow1 className="w-4 rotate-180 text-gray-500" />
         </button>
 
-        <div class:hidden={path !== "/dashboard"}>
-            <Home className="w-6 text-gray-800" />
+        <div class="text-gray-300 font-semibold">|</div>
+        <div class="flex items-center gap-2">
+            <Home className="w-5 text-gray-500" />
+            {#if path.length > 1}
+                {#each $store.global.currentPath.slice(1) as folder, i}
+                    <div class="flex gap-2 text-gray-500">
+                        <Arrow0 />
+                        {#if $store.global.currentPath.slice(1).length === i + 1}
+                            <span
+                                >{folder[0].toUpperCase() +
+                                    folder.slice(1)}</span
+                            >
+                        {:else}
+                            <a href="/dashboard/{folder}"
+                                >{folder[0].toUpperCase() + folder.slice(1)}</a
+                            >
+                        {/if}
+                    </div>
+                {/each}
+            {/if}
         </div>
     </div>
 
-    <div class="col-span-7 w-full h-full flex items-center">
+    <div class="col-span-6 w-full h-full flex items-center">
         <input
             type="text"
             class=" bg-none text-gray-800 w-full h-full border border-gray-300 p-1 px-4 rounded-lg placeholder:text-gray-300 outline-none"
