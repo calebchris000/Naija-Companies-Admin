@@ -77,7 +77,7 @@
         });
     }
 
-    async function handleUpdateData(object: any) {
+    async function handleUpdateData(object?: any) {
         updateStatus = "pending";
         if (filtered_cities.length === 1 || !formData.city) {
             formData.city = (filtered_cities[0] as any).name;
@@ -159,7 +159,8 @@
                         <span>City</span>
                         <select
                             on:input={(e) => {
-                                if (!e.target) return;
+                                if (!(e.target instanceof HTMLSelectElement))
+                                    return;
                                 formData.city = e.target.value;
                             }}
                             class:hidden={!editMode}
@@ -176,7 +177,8 @@
                         </select>
                         <input
                             on:input={(e) => {
-                                if (!e.target) return;
+                                if (!(e.target instanceof HTMLInputElement))
+                                    return;
                                 formData.city = e.target.value;
                             }}
                             class:hidden={editMode}
@@ -190,7 +192,8 @@
                         <span>Website</span>
                         <input
                             on:input={(e) => {
-                                if (!e.target) return;
+                                if (!(e.target instanceof HTMLInputElement))
+                                    return;
                                 formData.website = e.target.value;
                             }}
                             class="text-gray-800 bg-transparent"
@@ -203,7 +206,8 @@
                         <span>Email Address</span>
                         <input
                             on:input={(e) => {
-                                if (!e.target) return;
+                                if (!(e.target instanceof HTMLInputElement))
+                                    return;
                                 formData.email = e.target.value;
                             }}
                             class="text-gray-800 bg-transparent"
@@ -216,7 +220,8 @@
                         <span>Postal Code</span>
                         <input
                             on:input={(e) => {
-                                if (!e.target) return;
+                                if (!(e.target instanceof HTMLInputElement))
+                                    return;
                                 formData.postalCode = e.target.value;
                             }}
                             class="text-gray-800 bg-transparent"
@@ -229,7 +234,8 @@
                         <span>Industry</span>
                         <select
                             on:input={(e) => {
-                                if (!e.target) return;
+                                if (!(e.target instanceof HTMLSelectElement))
+                                    return;
                                 formData.industry = e.target.value;
                             }}
                             class:hidden={!editMode}
@@ -258,7 +264,8 @@
                         <span>Capital</span>
                         <select
                             on:input={(e) => {
-                                if (!e.target) return;
+                                if (!(e.target instanceof HTMLSelectElement))
+                                    return;
                                 formData.capitalId = e.target.value;
                                 handleCityFilter();
                             }}
