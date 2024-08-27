@@ -18,20 +18,6 @@
     $: companies = [] as any[];
     $: companies_filter = [] as any[];
     $: capitals = [] as any[];
-    $: formdata = {} as {
-        name: string;
-        website: string;
-        email: string;
-        logoUrl: string;
-        capital: string;
-        industry: string;
-        foundedYear: string;
-        size: string;
-        verified: string;
-        postalCode: string;
-        description: string;
-        city: string;
-    };
 
     $: {
         if ($store.global.searchValue) {
@@ -110,9 +96,10 @@
     function handleFormChange(e: Event) {
         const target = e.target as HTMLInputElement | HTMLSelectElement;
         const { name, value } = target;
-        console.log(name, value);
-        $store.organization.addFormData[name] = value;
-        formdata[name] = value;
+        if (name in $store.organization.addFormData) {
+            console.log(name, value);
+            ($store.organization.addFormData as any)[name] = value;
+        }
     }
 
     function getOrganizations() {
