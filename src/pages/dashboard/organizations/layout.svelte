@@ -1,6 +1,5 @@
 <script lang="ts">
-    import Navbar from "./components/navbar.svelte";
-    import Sidebar from "./components/sidebar.svelte";
+    import Sidebar from "@src/components/sidebar/sidebar.svelte";
 
     export let className = "";
 </script>
