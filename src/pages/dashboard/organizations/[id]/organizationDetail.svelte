@@ -11,6 +11,8 @@
     import Pencil from "@src/assets/Pencil.svelte";
     import Save from "@src/assets/save.svelte";
     import { organizations } from "@src/lib/organizations";
+    import { GetCapitals } from "@src/api/capital";
+    import { industries } from "@src/lib/industries";
 
     type DetailType = {
         id: string;
@@ -31,6 +33,7 @@
     const path = window.location.pathname.split("/");
     const id = path[path.length - 1];
     $: organization = {} as DetailType;
+    $: capitals = [] as any[];
     $: formData = organization as DetailType;
     $: editMode = false;
     $: updateStatus = "inactive" as
@@ -71,6 +74,15 @@
         }
     }
 
+    async function getCapitals() {
+        const response = await GetCapitals();
+        const { data, status } = response;
+
+        if (status === 200) {
+            capitals = data.data;
+        }
+    }
+
     $: {
         if (updateStatus !== "inactive" && updateStatus !== "pending") {
             setTimeout(() => {
@@ -82,6 +94,7 @@
 
     onMount(() => {
         getDetail();
+        getCapitals();
     });
 </script>
 
@@ -178,11 +191,24 @@
                     </div>
                     <div class="flex flex-col gap-1">
                         <span>Industry</span>
-                        <input
+                        <select
                             on:input={(e) => {
                                 if (!e.target) return;
                                 formData.industry = e.target.value;
                             }}
+                            class:hidden={!editMode}
+                            class="bg-transparent outline-none border border-gray-300 p-2 rounded-lg"
+                            name=""
+                            id=""
+                        >
+                            {#each industries as industry}
+                                <option value={industry.name}
+                                    >{industry.name}</option
+                                >
+                            {/each}
+                        </select>
+                        <input
+                            class:hidden={editMode}
                             class="text-gray-800 bg-transparent"
                             value={organization.industry ?? "Not Set"}
                             type="text"
@@ -191,13 +217,28 @@
                     </div>
                     <div class="flex flex-col gap-1">
                         <span>Capital</span>
-                        <input
+                        <select
                             on:input={(e) => {
                                 if (!e.target) return;
                                 formData.capitalId = e.target.value;
                             }}
+                            class:hidden={!editMode}
+                            class="bg-transparent outline-none border border-gray-300 p-2 rounded-lg"
+                            name="capitalId"
+                            id=""
+                        >
+                            {#each capitals as capital}
+                                <option value={capital.id}
+                                    >{capital.name}</option
+                                >
+                            {/each}
+                        </select>
+                        <input
+                            class:hidden={editMode}
                             class="text-gray-800 bg-transparent"
-                            value={"Lagos"}
+                            value={capitals.find(
+                                (c) => c.id === organization.capitalId,
+                            )?.name}
                             type="text"
                             disabled={!editMode}
                         />
