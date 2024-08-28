@@ -14,6 +14,10 @@
     import { GetCapitals } from "@src/api/capital";
     import { industries } from "@src/lib/industries";
     import { cities } from "@src/lib/cities";
+    import { notification } from "@src/utils/index";
+    import { UploadImage } from "@src/api/image";
+    import Upload from "@src/assets/upload.svelte";
+    import Building from "@src/assets/building.svelte";
 
     type DetailType = {
         id: string;
@@ -33,6 +37,8 @@
     };
     const path = window.location.pathname.split("/");
     const id = path[path.length - 1];
+    let fileElement: HTMLInputElement;
+    $: logo_image = "";
     $: organization = {} as DetailType;
     $: capitals = [] as any[];
     $: defaultCapital = capitals.find(
@@ -53,6 +59,18 @@
         | "pending"
         | "success"
         | "error";
+
+    $: image_load = false;
+    $: {
+        const image = new Image();
+        image.src = organization.logoUrl;
+        image.onload = (ev) => {
+            image_load = true;
+        };
+        image.onerror = (ev) => {
+            image_load = false;
+        };
+    }
 
     function handleCityFilter() {
         filtered_cities = cities.filter((city) => {
@@ -79,8 +97,26 @@
 
     async function handleUpdateData(object?: any) {
         updateStatus = "pending";
-        if (filtered_cities.length === 1 || !formData.city) {
+        handleCityFilter();
+        if (
+            !formData.city ||
+            filtered_cities.length === 1 ||
+            !filtered_cities.some((city) => city.name === formData.city)
+        ) {
             formData.city = (filtered_cities[0] as any).name;
+        }
+
+        if (!object && fileElement.files?.length) {
+            const res = await UploadImage(fileElement.files[0]);
+            const { data: _data, status: _status } = res;
+            if (_status === 200) {
+                $store.organization.uploadImageStatus = "success";
+                formData.logoUrl = _data.data.url;
+            } else {
+                $store.organization.uploadImageStatus = "failure";
+                notification.error({ text: "Could not update image" });
+                return;
+            }
         }
         const response = await UpdateOrganizations(object ?? formData);
         const { status, data } = response;
@@ -98,6 +134,34 @@
 
         if (status === 200) {
             capitals = data.data;
+        }
+    }
+
+    async function handleFileInput() {
+        if (fileElement.files && fileElement.files[0]) {
+            const file = fileElement.files[0];
+            const allowedTypes = [
+                "image/png",
+                "image/jpeg",
+                "image/jpg",
+                "image/webp",
+            ];
+
+            if (allowedTypes.includes(file.type)) {
+                console.log("Valid image file:", file.name);
+                logo_image = URL.createObjectURL(file);
+                // UploadImage(file).then((d) => {
+                //     console.log(d);
+                // });
+            } else {
+                notification.error({ text: "" });
+                console.error(
+                    "Invalid file type. Please select a PNG, JPG, JPEG, or WebP image.",
+                );
+                fileElement.value = ""; // Clear the file input
+            }
+        } else {
+            console.error("No file selected");
         }
     }
 
@@ -125,8 +189,40 @@
 
             <figure class="w-[70vw] py-10 mx-auto h-full flex flex-col gap-10">
                 <div class="flex gap-4">
-                    <span class="bg-gray-800 h-10 w-10 p-10 rounded-full"
-                    ></span>
+                    <div
+                        class:bg-transparent={image_load}
+                        class="bg-gray-800 relative h-20 w-20 overflow-hidden flex items-center justify-center transition-all rounded-full"
+                    >
+                        <button
+                            type="button"
+                            on:click={() => {
+                                if (!fileElement) return;
+                                fileElement.click();
+                            }}
+                            class:opacity-100={editMode}
+                            class:pointer-events-auto={editMode}
+                            class="absolute pointer-events-none flex items-center justify-center transition-all inset-0 opacity-0 bg-black bg-opacity-50"
+                        >
+                            <Upload className="w-10 text-gray-300" />
+                        </button>
+                        <input
+                            on:input={handleFileInput}
+                            hidden
+                            bind:this={fileElement}
+                            type="file"
+                        />
+                        {#if logo_image || image_load}
+                            <img
+                                src={logo_image
+                                    ? logo_image
+                                    : organization.logoUrl}
+                                class="w-full h-full"
+                                alt="logo"
+                            />
+                        {:else}
+                            <Building className="w-10 text-gray-500" />
+                        {/if}
+                    </div>
 
                     <div class="flex flex-col gap-2">
                         <span class="text-4xl font-semibold"
