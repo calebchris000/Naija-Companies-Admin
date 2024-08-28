@@ -191,7 +191,7 @@
                 <div class="flex gap-4">
                     <div
                         class:bg-transparent={image_load}
-                        class="bg-gray-800 relative h-20 w-20 overflow-hidden flex items-center justify-center transition-all rounded-full"
+                        class="bg-gray-800 border border-gray-300 relative h-20 w-20 overflow-hidden flex items-center justify-center transition-all rounded-full"
                     >
                         <button
                             type="button"
@@ -216,7 +216,7 @@
                                 src={logo_image
                                     ? logo_image
                                     : organization.logoUrl}
-                                class="w-full h-full"
+                                class="w-full"
                                 alt="logo"
                             />
                         {:else}
