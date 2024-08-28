@@ -54,6 +54,18 @@
         | "success"
         | "error";
 
+    $: image_load = false;
+    $: {
+        const image = new Image();
+        image.src = organization.logoUrl;
+        image.onload = (ev) => {
+            image_load = true;
+        };
+        image.onerror = (ev) => {
+            image_load = false;
+        };
+    }
+
     function handleCityFilter() {
         filtered_cities = cities.filter((city) => {
             const capital = capitals.find((c) => c.id === formData.capitalId);
@@ -125,8 +137,16 @@
 
             <figure class="w-[70vw] py-10 mx-auto h-full flex flex-col gap-10">
                 <div class="flex gap-4">
-                    <span class="bg-gray-800 h-10 w-10 p-10 rounded-full"
-                    ></span>
+                    <span
+                        class:bg-transparent={image_load}
+                        class="bg-gray-800 h-20 w-20 overflow-hidden flex items-center justify-center transition-all rounded-full"
+                    >
+                        <img
+                            src={organization.logoUrl}
+                            class="w-full h-full"
+                            alt="logo"
+                        />
+                    </span>
 
                     <div class="flex flex-col gap-2">
                         <span class="text-4xl font-semibold"

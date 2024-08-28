@@ -1,10 +1,13 @@
 <script lang="ts">
     import { GetCapitals } from "@src/api/capital";
+    import { UploadImage } from "@src/api/image";
     import Asterisk from "@src/assets/asterisk.svelte";
+    import Upload from "@src/assets/upload.svelte";
     import Button from "@src/components/button/button.svelte";
     import { cities } from "@src/lib/cities";
     import { industries } from "@src/lib/industries";
     import { store } from "@src/lib/store";
+    import { notification } from "@src/utils";
     import { createEventDispatcher, onMount } from "svelte";
 
     type FormInput = {
@@ -16,6 +19,9 @@
         value?: any[];
     };
 
+    let fileElement: HTMLInputElement;
+
+    $: logo_image = "";
     $: showCompanyModal = $store.organization.addModalOpen;
     $: formInputs = [
         {
@@ -58,13 +64,6 @@
             required: true,
             type: "email",
             placeholder: "Enter email address",
-        },
-        {
-            name: "Logo URL",
-            id: "logoUrl",
-            type: "text",
-            required: true,
-            placeholder: "Enter logo URL",
         },
 
         {
@@ -137,7 +136,56 @@
         dispatch("formChange", e);
     }
     function handleAddOrganization(e: Event) {
-        dispatch("submit", e);
+        e.preventDefault();
+        $store.organization.uploadImageStatus = "pending";
+        const formData = new FormData(e.target as HTMLFormElement);
+        if (!fileElement.files || !fileElement.files[0]) {
+            $store.organization.uploadImageStatus = "failure";
+            notification.error({ text: "Adding logo is required." });
+            return;
+        }
+
+        UploadImage(fileElement.files[0]).then((d) => {
+            const { status, data } = d;
+            if (status === 200) {
+                $store.organization.uploadImageStatus = "success";
+                formData.append("logoUrl", data.data.url);
+                console.log(Object.fromEntries(formData));
+                dispatch("submit", formData);
+            }
+        });
+    }
+
+    function handleFileModal() {
+        if (!fileElement) return;
+        fileElement.click();
+    }
+
+    async function handleFileInput() {
+        if (fileElement.files && fileElement.files[0]) {
+            const file = fileElement.files[0];
+            const allowedTypes = [
+                "image/png",
+                "image/jpeg",
+                "image/jpg",
+                "image/webp",
+            ];
+
+            if (allowedTypes.includes(file.type)) {
+                console.log("Valid image file:", file.name);
+                logo_image = URL.createObjectURL(file);
+                // UploadImage(file).then((d) => {
+                //     console.log(d);
+                // });
+            } else {
+                console.error(
+                    "Invalid file type. Please select a PNG, JPG, JPEG, or WebP image.",
+                );
+                fileElement.value = ""; // Clear the file input
+            }
+        } else {
+            console.error("No file selected");
+        }
     }
 
     onMount(() => {
@@ -162,7 +210,7 @@
         <div class="flex row-span-1 items-center p-4 px-8 justify-between">
             <span class="text-gray-500 text-xl">Add Organization</span>
             <Button
-                className="h-fit"
+                style="height: fit-content;"
                 on:click={() => {
                     showCompanyModal = false;
                 }}
@@ -170,6 +218,23 @@
             />
         </div>
 
+        <button
+            type="button"
+            on:click={handleFileModal}
+            class="w-20 h-20 overflow-hidden border-2 border-gray-800 rounded-full flex items-center justify-center mx-8"
+        >
+            {#if logo_image}
+                <img class="w-full" src={logo_image} alt="" />
+            {:else}
+                <Upload className="w-8 text-gray-800" />
+            {/if}
+        </button>
+        <input
+            on:input={handleFileInput}
+            hidden
+            bind:this={fileElement}
+            type="file"
+        />
         <form
             on:change={(e) => {
                 handleFormChange(e);
@@ -274,6 +339,7 @@
                                 class="border
                                 placeholder:text-gray-500 p-2 px-4 border-gray-300 transition-all focus:border-gray-500 rounded-lg"
                                 {placeholder}
+                                {required}
                                 {type}
                             />
                         </div>
@@ -285,9 +351,16 @@
                     on:click={() => {
                         // handleAddOrganization();
                     }}
+                    className="justify-center"
                     type="submit"
                     size="wide"
-                    name="Submit"
+                    name={$store.organization.uploadImageStatus === "pending"
+                        ? "Uploading Image..."
+                        : $store.organization.uploadImageStatus === "success"
+                          ? "Success"
+                          : $store.organization.uploadImageStatus === "failure"
+                            ? "Error"
+                            : "Submit"}
                 />
             </div>
         </form>

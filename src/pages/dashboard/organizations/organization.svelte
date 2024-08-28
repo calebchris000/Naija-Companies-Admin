@@ -43,11 +43,8 @@
         }
     }
 
-    async function handleAddOrganization(e: Event) {
-        e.preventDefault();
-        const form = e.target as HTMLFormElement;
-        const formData = new FormData(form);
-        const formObject = Object.fromEntries(formData.entries());
+    async function handleAddOrganization(form: FormData) {
+        const formObject = Object.fromEntries(form.entries());
         const {
             name,
             website,
@@ -163,7 +160,7 @@
                         <button
                             type="button"
                             on:click={() => {
-                                navigate(`/dashboard/organization/${org.id}`);
+                                navigate(`/dashboard/organizations/${org.id}`);
                             }}
                             class="grid w-full text-start transition-all grid-cols-12 hover:bg-gray-100 text-gray-800 text-sm px-4 items-center py-2 border-b border-gray-100"
                         >

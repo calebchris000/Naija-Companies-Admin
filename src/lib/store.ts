@@ -24,6 +24,7 @@ type StoreType = {
   };
   organization: {
     addModalOpen: boolean;
+    uploadImageStatus: "inactive" | "pending" | "success" | "failure";
     addFormData: FormDataType;
   };
 };
@@ -40,6 +41,7 @@ const defaultStore: StoreType = {
   },
   organization: {
     addModalOpen: false,
+    uploadImageStatus: "inactive",
     addFormData: {
       name: null,
       website: null,
