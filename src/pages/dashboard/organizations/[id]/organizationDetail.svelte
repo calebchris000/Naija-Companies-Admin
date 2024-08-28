@@ -17,6 +17,7 @@
     import { notification } from "@src/utils/index";
     import { UploadImage } from "@src/api/image";
     import Upload from "@src/assets/upload.svelte";
+    import Building from "@src/assets/building.svelte";
 
     type DetailType = {
         id: string;
@@ -96,7 +97,12 @@
 
     async function handleUpdateData(object?: any) {
         updateStatus = "pending";
-        if (filtered_cities.length === 1 || !formData.city) {
+        handleCityFilter();
+        if (
+            !formData.city ||
+            filtered_cities.length === 1 ||
+            !filtered_cities.some((city) => city.name === formData.city)
+        ) {
             formData.city = (filtered_cities[0] as any).name;
         }
 
@@ -205,11 +211,17 @@
                             bind:this={fileElement}
                             type="file"
                         />
-                        <img
-                            src={logo_image ? logo_image : organization.logoUrl}
-                            class="w-full h-full"
-                            alt="logo"
-                        />
+                        {#if logo_image || image_load}
+                            <img
+                                src={logo_image
+                                    ? logo_image
+                                    : organization.logoUrl}
+                                class="w-full h-full"
+                                alt="logo"
+                            />
+                        {:else}
+                            <Building className="w-10 text-gray-500" />
+                        {/if}
                     </div>
 
                     <div class="flex flex-col gap-2">

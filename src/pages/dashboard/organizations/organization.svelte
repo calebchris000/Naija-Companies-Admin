@@ -106,6 +106,9 @@
 
             if (status === 200) {
                 console.log(data.data);
+                data.data.sort((a, b) =>
+                    b.updatedAt.localeCompare(a.updatedAt),
+                );
                 companies = data.data;
                 companies_filter = data.data;
             }
