@@ -14,7 +14,12 @@
         if (!token) {
             navigate("/login");
         } else {
-            navigate("/dashboard/organizations");
+            const path = window.location.pathname.split("/").filter((p) => p);
+            if (path.length) {
+                navigate("/" + path.join("/"));
+            } else {
+                navigate("/dashboard/organizations");
+            }
         }
     });
 </script>
