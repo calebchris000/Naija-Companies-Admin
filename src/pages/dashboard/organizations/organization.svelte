@@ -50,9 +50,10 @@
             website,
             email,
             logoUrl,
-            city,
-            capital,
-            industry,
+            cityId,
+            capitalId,
+            categoryId,
+            industryId,
             foundedYear,
             size,
             verified,
@@ -60,16 +61,16 @@
             description,
         } = formObject;
 
-        const capitalId = capitals.find((c) => c.name === capital)?.id;
         console.log(formObject);
         const response = await AddOrganizations([
             {
                 name,
                 website,
                 email,
-                city,
+                cityId,
                 capitalId,
-                industry,
+                categoryId,
+                industryId,
                 logoUrl,
                 verified: JSON.parse((verified as string) ?? "false"),
                 foundedYear,
@@ -81,7 +82,7 @@
 
         const { status, data } = response;
         if (status !== 201) {
-            console.log(data);
+            console.log(data.response);
             notification.error({
                 text: "Could not add organization. Check logs for more info",
             });
@@ -105,12 +106,15 @@
             const { status, data } = d;
 
             if (status === 200) {
-                console.log(data.data);
-                data.data.sort((a, b) =>
-                    b.updatedAt.localeCompare(a.updatedAt),
-                );
-                companies = data.data;
-                companies_filter = data.data;
+                const org = data.data.organizations as any[];
+                if (Array.isArray(org)) {
+                    org.sort((a: any, b: any) =>
+                        b.updatedAt.localeCompare(a.updatedAt),
+                    );
+                }
+                companies = org;
+                companies_filter = org;
+                console.log(companies_filter, "org");
             }
         });
     }
@@ -163,20 +167,23 @@
                         <button
                             type="button"
                             on:click={() => {
-                                navigate(`/dashboard/organizations/${org.id}`);
+                                navigate(`/dashboard/organizations/${org._id}`);
                             }}
                             class="grid w-full text-start transition-all grid-cols-12 hover:bg-gray-100 text-gray-800 text-sm px-4 items-center py-2 border-b border-gray-100"
                         >
                             <span class="w-full">{index + 1}</span>
                             <span class="w-full col-span-3">{org.name}</span>
                             <span class="w-full col-span-2"
-                                >{org.website.length > 16
+                                >{org.website && org.website.length > 16
                                     ? org.website.slice(0, 16) + "..."
-                                    : org.website}</span
+                                    : (org.website ?? "Not set")}</span
                             >
-                            <span class="w-full col-span-2">{org.city}</span>
+                            <span class="w-full col-span-2"
+                                >{org.city.name}</span
+                            >
                             <span class="w-full">{org.size}</span>
-                            <span class="w-full col-span-2">{org.industry}</span
+                            <span class="w-full col-span-2"
+                                >{org.industry.name}</span
                             >
                             <span class="w-full col-span-1">
                                 {#if org.verified}

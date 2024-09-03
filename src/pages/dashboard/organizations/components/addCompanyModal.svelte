@@ -1,11 +1,12 @@
 <script lang="ts">
     import { GetCapitals } from "@src/api/capital";
+    import { GetCategories } from "@src/api/category";
+    import { GetCities } from "@src/api/city";
     import { UploadImage } from "@src/api/image";
+    import { GetIndustries } from "@src/api/industry";
     import Asterisk from "@src/assets/asterisk.svelte";
     import Upload from "@src/assets/upload.svelte";
     import Button from "@src/components/button/button.svelte";
-    import { cities } from "@src/lib/cities";
-    import { industries } from "@src/lib/industries";
     import { store } from "@src/lib/store";
     import { notification } from "@src/utils";
     import { createEventDispatcher, onMount } from "svelte";
@@ -18,6 +19,17 @@
         placeholder: string;
         value?: any[];
     };
+
+    interface CityType {
+        cityType: number;
+        name: string;
+        capitalId: string;
+    }
+
+    interface IndustryType {
+        name: string;
+        description?: string;
+    }
 
     let fileElement: HTMLInputElement;
 
@@ -75,6 +87,14 @@
             placeholder: "Enter industry",
         },
         {
+            name: "Category",
+            id: "category",
+            required: true,
+            type: "select",
+            value: categories,
+            placeholder: "Enter Category",
+        },
+        {
             name: "Founded Year",
             id: "foundedYear",
             type: "number",
@@ -121,12 +141,16 @@
     ] as FormInput[];
 
     $: capitals = [] as any[];
+    $: industries = [] as { name: string }[];
+    $: categories = [] as any[];
+    $: cities = [] as CityType[];
     $: cities_filter = cities as any[];
 
     $: {
         cities_filter = cities.filter((c) => {
             const selected = $store.organization.addFormData.capital;
-            return c.capital === selected;
+            const capital = capitals.find((c) => c.name === selected);
+            return c.capitalId === capital?.capitalId;
         });
     }
 
@@ -139,21 +163,48 @@
         e.preventDefault();
         $store.organization.uploadImageStatus = "pending";
         const formData = new FormData(e.target as HTMLFormElement);
+        const cityId = (
+            cities.find((c: any) => c?.name === formData.get("city")) as any
+        )?.cityId;
+        const capitalId = capitals.find(
+            (c) => c.name === formData.get("capital"),
+        )?.capitalId;
+        const industryId = (
+            industries.find((c) => c.name === formData.get("industry")) as any
+        )?._id;
+        const categoryId = categories.find(
+            (c) => c.name === formData.get("category"),
+        )?._id as any;
+        formData.delete("city");
+        formData.delete("capital");
+        formData.delete("industry");
+        formData.delete("category");
+
+        formData.append("cityId", cityId);
+        formData.append("capitalId", capitalId);
+        formData.append("industryId", industryId);
+        formData.append("categoryId", categoryId);
+
         if (!fileElement.files || !fileElement.files[0]) {
             $store.organization.uploadImageStatus = "failure";
             notification.error({ text: "Adding logo is required." });
             return;
         }
 
-        UploadImage(fileElement.files[0]).then((d) => {
-            const { status, data } = d;
-            if (status === 200) {
-                $store.organization.uploadImageStatus = "success";
-                formData.append("logoUrl", data.data.url);
-                console.log(Object.fromEntries(formData));
-                dispatch("submit", formData);
-            }
-        });
+        if ($store.organization.addFormData.logoUrl) {
+            formData.append("logoUrl", $store.organization.addFormData.logoUrl);
+            dispatch("submit", formData);
+        } else {
+            UploadImage(fileElement.files[0]).then((d) => {
+                const { status, data } = d;
+                if (status === 200) {
+                    $store.organization.uploadImageStatus = "success";
+                    $store.organization.addFormData.logoUrl = data.data.url;
+                    formData.append("logoUrl", data.data.url);
+                    console.log(Object.fromEntries(formData));
+                }
+            });
+        }
     }
 
     function handleFileModal() {
@@ -193,9 +244,34 @@
             const { status, data } = d;
             if (status === 200) {
                 capitals = data.data;
-                console.log(data.data);
             }
         });
+    });
+
+    GetCities().then((d) => {
+        const { status, data } = d;
+        if (status === 200) {
+            console.log(data.data);
+
+            cities = data.data;
+        }
+    });
+
+    GetIndustries().then((d) => {
+        const { status, data } = d;
+        if (status === 200) {
+            const ind = data.data as IndustryType[];
+            industries = ind;
+        }
+    });
+
+    GetCategories().then((d) => {
+        const { status, data } = d;
+        if (status === 200) {
+            const cat = data.data as IndustryType[];
+            console.log(cat, "categories");
+            categories = cat;
+        }
     });
 </script>
 
