@@ -61,7 +61,6 @@
             description,
         } = formObject;
 
-        console.log(formObject);
         const response = await AddOrganizations([
             {
                 name,
@@ -82,7 +81,6 @@
 
         const { status, data } = response;
         if (status !== 201) {
-            console.log(data.response);
             notification.error({
                 text: "Could not add organization. Check logs for more info",
             });
@@ -96,7 +94,6 @@
         const target = e.target as HTMLInputElement | HTMLSelectElement;
         const { name, value } = target;
         if (name in $store.organization.addFormData) {
-            console.log(name, value);
             ($store.organization.addFormData as any)[name] = value;
         }
     }
@@ -114,7 +111,6 @@
                 }
                 companies = org;
                 companies_filter = org;
-                console.log(companies_filter, "org");
             }
         });
     }
@@ -125,7 +121,6 @@
             const { status, data } = d;
             if (status === 200) {
                 capitals = data.data;
-                console.log(data.data);
             }
         });
     });
